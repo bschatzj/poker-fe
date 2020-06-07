@@ -1,26 +1,29 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from 'react'
+import './App.css'
+import Shuffler from './Shuffle'
+import SetUp from './SetUp'
+import { connect } from 'react-redux'
+import { Route } from 'react-router'
+import Deal from './Deal'
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+function App(props) {
+  console.log(props)
+  return(
+  <>
+    <Route exact path='/' component={SetUp} />
+    <Route path='/' component={Shuffler} />
+    {/* <Route path='/' component={Deal} /> */}
+  </>
+  )
 }
 
-export default App;
+function mapStateToProps(state) {
+  return {
+    complete: state.setup,
+  }
+}
+
+const mapDispatchToProps = {}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App)
