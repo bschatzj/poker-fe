@@ -1,0 +1,31 @@
+.Nav{
+    height: 10vh;
+    background-color: black;
+    color: whitesmoke;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.Link{
+    color: white;
+    font-size: 3.2rem;
+}
+
+.LogReg{
+    width: 40%;
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.Logo{
+    height: 8vh;
+    border-radius: 120%;
+    margin-left: 5vw;
+    
+}
+
+.logoHolder{
+    display: flex;
+    align-items: center;
+}

@@ -1,0 +1,27 @@
+.Background{
+    width: 100%;
+    min-height: 90vh;
+    height: 100%;
+    background-color: rgb(48,25,52);
+}
+
+.hands{
+    width:50%;
+    margin-left: 25%;
+    border-radius: 5%;
+}
+
+.welcome{
+    padding: 0;
+    margin: 0;
+    padding: 3rem;
+    color: rgba(143, 153, 4, 0.63);
+    font-size: 4rem;
+    text-align: center;
+}
+
+.centerer{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

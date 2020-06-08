@@ -4,16 +4,20 @@ import Shuffler from './Shuffle'
 import SetUp from './SetUp'
 import { connect } from 'react-redux'
 import { Route } from 'react-router'
-import Deal from './Deal'
-
+import Home from './home'
+import Register from './register'
+import Login from './login'
+import NavBar from './Nav'
 
 function App(props) {
   console.log(props)
   return(
   <>
-    <Route exact path='/' component={SetUp} />
-    <Route path='/' component={Shuffler} />
-    {/* <Route path='/' component={Deal} /> */}
+    <NavBar />
+    <Route exact path = '/' component ={Home} />
+    <Route exact path = '/Register' component ={Register} />
+    <Route exact path = '/Login' component ={Login} />
+    <Route exact path='/play' component={SetUp} />
   </>
   )
 }
