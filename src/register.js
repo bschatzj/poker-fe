@@ -7,32 +7,49 @@ const Register = props => {
     const [credentials, setCredentials] = useState({
         username: "",
         password: "",
-        confirm: "",
         email: ""
     });
-
+    const [error, setError] = useState("")
+    const [confirm, setConfirm] = useState("")
     const handleChange = e => {
         let name = e.target.name;
         setCredentials({ ...credentials, [name]: e.target.value });
     };
 
-    const login = e => {
+    const handleConfirm = e => {
+        setConfirm(e.target.value)
+        console.log(confirm)
+    }
+
+    const register = e => {
         e.preventDefault();
-        axiosWithAuth()
-            .post("/auth/login", credentials)
+        if (!credentials.username || !credentials.password || !credentials.email || !confirm){
+            setError('Missing a required feild!')
+        }
+        else if (credentials.password.length < 8){
+            setError("Password must be at least eight characters")
+        }
+        else if (credentials.password !== confirm) {
+            setError("Passwords do not match!")
+        }
+        else{
+            axiosWithAuth()
+            .post("/auth/register", credentials)
             .then(res => {
                 localStorage.setItem("PokerToken", res.data.token);
                 console.log(res.data);
                 props.history.push("/loading");
             })
-            .catch(err => console.log(err));
+            .catch(err => setError(err));
+        }
     };
 
     return (
         <div className="outerLogin">
             <h1 className="header">REGISTER</h1>
+            <h1 className="error"> {error}</h1>
             <div className="loginPage">
-                <form className="form" onSubmit={login}>
+                <form className="form" onSubmit={register}>
                     <input
                         type="text"
                         name="username"
@@ -41,7 +58,7 @@ const Register = props => {
                         onChange={handleChange}
                     />
                     <input
-                        type="text"
+                        type="email"
                         name="email"
                         placeholder="Email"
                         value={credentials.email}
@@ -58,11 +75,11 @@ const Register = props => {
                         type="password"
                         name="confirm"
                         placeholder="Confirm Password"
-                        value={credentials.confirm}
-                        onChange={handleChange}
+                        value={confirm}
+                        onChange={handleConfirm}
                     />
                     <div>
-                        <button class="register" type="submit">Register</button>
+                        <button class="login" type="submit">Register</button>
                     </div>
                 </form>
             </div>

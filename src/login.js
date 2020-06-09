@@ -17,7 +17,7 @@ const Login = props => {
   const login = e => {
     e.preventDefault();
     axiosWithAuth()
-      .post("/login/login", credentials)
+      .post("/auth/login", credentials)
       .then(res => {
         localStorage.setItem("PokerToken", res.data.token);
         localStorage.setItem("userId", res.data.id);
