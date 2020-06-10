@@ -21,6 +21,7 @@ const Login = props => {
       .then(res => {
         localStorage.setItem("PokerToken", res.data.token);
         localStorage.setItem("userId", res.data.id);
+        localStorage.setItem("username", res.data.username)
         console.log(res.data);
         props.history.push("/");
       })

@@ -10,6 +10,7 @@ import { columns } from './TableHead'
 export default function Profile() {
     const [profileInfo, setProfileInfo] = useState({})
     const [hands, setHands] = useState([])
+    const [displayed, setDisplayed] = useState(0)
 
     useEffect(() => {
         axiosWithAuth().get(`./users/user/1`)
@@ -41,8 +42,13 @@ export default function Profile() {
                     Welcome back, {profileInfo.username}
                 </h1>
             </BounceRight>
-
-            <Hands columns={columns} data={data} number={0} />
+            <div className='handInfo' >
+            <button className="pageChange" onClick={() => setDisplayed(displayed - 15)}>Display Previous</button>
+            <h1>{data.length} total hands. Displaying {displayed} - {displayed + 15} </h1>
+            
+            <button className="pageChange"onClick={() => setDisplayed(displayed + 15)}>Display Next</button>
+            </div>
+            <Hands columns={columns} data={data} number={displayed} />
 
 
         </div>

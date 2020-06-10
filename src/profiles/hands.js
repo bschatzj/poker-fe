@@ -1,5 +1,5 @@
 import React from 'react'
-import { useTable, useSortBy } from "react-table"
+import { useTable } from "react-table"
 import './table.css'
 
 

@@ -7,3 +7,20 @@
     margin-top:0;
     text-align: center;
 }
+
+
+.handInfo{
+    display: flex;
+    margin-left: 10%;
+    justify-content: space-between;
+    width: 80%;
+    margin-top: 5rem;
+    margin-bottom: 3rem;
+    align-items: center;
+    font-size: 1.8rem;
+}
+
+.pageChange{
+    height: 4rem;
+    font-size: 1.6rem;
+}
