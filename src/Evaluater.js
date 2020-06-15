@@ -6,3 +6,4 @@ var hand2 = Hand.solve(['Ad', 'As', 'Jc', 'Th', '2d', 'Qs', 'Qd']);
 
 var winner = Hand.winners([hand1, hand2]); // hand2
 
+console.log(winner)

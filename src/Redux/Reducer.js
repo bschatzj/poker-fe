@@ -1,38 +1,22 @@
-import { SHUFFLE, CONFIRM_GAME, DEAL } from './Actions'
+import { WIN, BET } from './Actions'
 
 const initialState = {
-  deck: [],
-  players: [],
-  game: "",
-  setup: false,
-  playerOne: {
-    Hand: [],
-  },
-  playerTwo: {
-    Hand: [],
-  },
+  myChips: 1000,
+  oppChips: 1000,
 }
 
 export function reducer(state = initialState, action) {
   console.log(action)
     switch (action.type) {
-    case SHUFFLE:
+    case WIN:
       return {
         ...state,
-        deck: action.payload,
-      }
-    case CONFIRM_GAME:
-      return{ 
+        myChips: (state.myChips + action.payload),
+    }
+    case BET:
+      return {
         ...state,
-        players: action.payload.players,
-        game: action.payload.game,
-        setup: action.payload.complete
-      }
-    case DEAL: return {
-      ...state,
-      playerOne: {
-        Hand: [action.payload.handOne]
-      }
+        myChips: (state.myChips - action.payload),
     }
     
 

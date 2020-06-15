@@ -1,22 +1,14 @@
-export const SHUFFLE = 'SHUFFLE'
-export const CONFIRM_GAME = "CONFIRM_GAME"
-export const DEAL = 'DEAL'
+export const WIN = 'WIN', BET ="BET"
 
 
-export function shuffles(deck) {
+export function win(chips) {
   return dispatch => {
-    dispatch({ type: SHUFFLE, payload: deck })
+    dispatch({ type: WIN, payload: chips })
   }
 }
 
-export function confirmGame(players, game, complete){
-    return dispatch => {
-        dispatch({type: CONFIRM_GAME, payload: {players: players, game: game, complete: complete} })
-    }
-}
-
-export function deal(playerOne, game){
+export function bet(chips) {
   return dispatch => {
-    dispatch({type: DEAL, handOne: playerOne })
+    dispatch({ type: BET, payload: chips })
   }
 }
