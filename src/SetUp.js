@@ -4,6 +4,7 @@ import axios from 'axios'
 import MyCards from './myCards'
 import Community from './community'
 import { connect } from 'react-redux';
+import './index.css'
 import { setStreet, win, bet, check, oppBet, makeMyTurn, lose, makeOppTurn } from './Redux/Actions';
 const Hand = require('pokersolver').Hand;
 
@@ -27,7 +28,7 @@ const SetUp = props => {
   const [checked, setChecked] = useState(false)
   let mine = []
   let opponents = []
-  const [winner, setWinner] = useState('')
+  const [showdown, setShowdown] = useState(false)
   const [winningHand, setWinningHand] = useState('')
 
   let table = localStorage.getItem('pokerRoom')
@@ -113,9 +114,6 @@ const SetUp = props => {
     setBetSize(0)
   }
 
-  function Fold() {
-    socket.emit('fold', table, player)
-  }
 
   function Call() {
     checks.push(player)
@@ -152,6 +150,7 @@ const SetUp = props => {
     console.log(value1)
     setMyHandValue(value2)
     setOppHandValue(value1)
+    Post(true)
     //setTimeout(function(){ socket.emit('judge', table)}, 1000)
     //console.log(Hand.winners([myHandValue, oppHandValue]));
   }
@@ -164,17 +163,20 @@ const SetUp = props => {
     console.log('flop', res)
     setCommunity(res)
     setChecked(false)
+    setCallSize(0)
   })
 
   socket.on('turn', res => {
     console.log(res[0].card)
     setTurn([res[0].card])
     setChecked(false)
+    setCallSize(0)
   })
 
   socket.on('river', res => {
     setRiver([res[0].card])
     setChecked(false)
+    setCallSize(0)
   })
 
   socket.on('check', res => {
@@ -186,19 +188,16 @@ const SetUp = props => {
       props.makeMyTurn()
     }
   })
-  socket.on('fold', res => {
-  })
 
   const add = () => {
     props.win(props.pot)
   }
-
-  socket.on('winner', res => {
-
+  socket.on('fold', res => {
     const position = localStorage.getItem('pokerPosition')
-    if (res == position) {
+    if (res != position) {
       console.log('i win')
       add()
+      socket.emit('shuffle')
       setTimeout(function () {
         setCommunity([])
         setRiver([])
@@ -213,10 +212,52 @@ const SetUp = props => {
     }
     else {
       props.lose()
+      socket.emit('shuffle')
       setTimeout(function () {
         setCommunity([])
         setRiver([])
         setTurn([])
+        mine = []
+        setMyHand([])
+        setOpponentHand([])
+        setBetSize(0)
+        opponents = []
+        deal()
+      }, 3000);
+    }
+   })
+
+  function Fold() {
+    socket.emit('fold', table, player)
+  }
+
+  socket.on('winner', res => {
+    console.log(community)
+    setShowdown(true)
+    const position = localStorage.getItem('pokerPosition')
+    if (res == position) {
+      console.log('i win')
+      add()
+      setTimeout(function () {
+        setCommunity([])
+        setRiver([])
+        setTurn([])
+        mine = []
+        setMyHand([])
+        setOpponentHand([])
+        setBetSize(0)
+        opponents = []
+        setShowdown(false)
+        deal()
+      }, 3000);
+    }
+    else {
+      props.lose()
+      setTimeout(function () {
+        setCommunity([])
+        setRiver([])
+        setTurn([])
+        setShowdown(false)
         mine = []
         setMyHand([])
         setOpponentHand([])
@@ -237,6 +278,16 @@ const SetUp = props => {
     }
   })
 
+  function Post(winer){
+    console.log(community[0])
+    axios.post('http://localhost:8080/hands/session', { id: parseInt(localStorage.getItem('userId')), my_hand: `${myHand[0]} ${myHand[1]}`, win: winer, flop: `${community[0].card} ${community[1].card} ${community[2].card}`, turn: `${turn[0]}`,  river: `${river[0]}`, profit: props.pot})
+    .then(res => {
+      console.log(res)
+    })
+    .catch(err => {
+      console.log(err)
+    })
+  }
 
   function Check() {
     socket.emit('check', table, player)
@@ -302,13 +353,13 @@ const SetUp = props => {
   }, [winningHand])
 
   return (
-    <>
-      {ready ? null : <div>
-        {friend ? <button onClick={() => { Play(opponent) }} > Confirm</button> : <button onClick={() => setFriend(true)} > PLAY A FRIEND!</button>}
+    <div className="play">
+      {ready ? null : <div className="buttons">
+        {friend ? <button className="button" onClick={() => { Play(opponent) }} > Confirm</button> : <button className="button" onClick={() => setFriend(true)} > PLAY A FRIEND!</button>}
         {friend ? <><label>Opponent: </label>  <input value={opponent} onChange={handleOpponent} /> </> : null}
 
-        <button onClick={() => { Play("") }} >Play Random Opponent</button>
-        <button onClick={() => { deal() }}>DEALLLL!!!!!!!!</button>
+        <button className="button" onClick={() => { Play("") }} >Play Random Opponent</button>
+        <button className="button" onClick={() => { deal() }}>DEALLLL!!!!!!!!</button>
       </div>}
       {ready ?
         <>
@@ -321,19 +372,20 @@ const SetUp = props => {
             <>
               <input type="number" step="5" min="0" max={chips} value={betSize} onChange={handleBet} />
               <button onClick={() => { Bet(betSize) }}>bet!!!!!!!!</button>
-              {/* {callSize > 0 ? <button onClick={() => { Call() }}>Call {callSize}</button> : <button onClick={() => { Call() }}>Check</button>} */}
-              <button onClick={() => { Call() }}>Call {callSize}</button>
-              {callSize > 0 ? null : <button onClick={() => { Check() }}>Check</button>}
+              {callSize > 0 ? <button onClick={() => { Call() }}>Call {callSize}</button> : <button onClick={() => { Check() }}>Check</button>}
+              {/* <button onClick={() => { Call() }}>Call {callSize}</button>
+              {callSize > 0 ? null : <button onClick={() => { Check() }}>Check</button>} */}
               <button onClick={() => { Fold() }}>Fold</button>
-              {callSize > 0 ? <button onClick={() => { Fold() }}>Fold</button> : null}
             </>
             : null}
           <h1>Opponent Chips: {props.oppChips}</h1>
+            {showdown? <h1>Opponent Cards: {opponentHand[0]} {opponentHand[1]}</h1> : null}
           <h1>Pot: {props.pot}</h1>
         </>
         : null}
+        <button onClick={() => { Post() }}>post</button>
       {/* <h1>My turn? {props.myTurn ? "yes" : "no"}</h1> */}
-    </>
+    </div>
   )
 }
 

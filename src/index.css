@@ -11,3 +11,24 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+
+.play{
+  background-image: url('https://t3.ftcdn.net/jpg/02/31/39/64/240_F_231396405_z8U92SirADO2wwYmC9dsHtjrYWsT16fq.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  min-height: 90vh;
+}
+
+.buttons{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 80vh;
+}
+
+.button{
+  color: black;
+  background-color: blue;
+}
