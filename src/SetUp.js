@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import io from "socket.io-client";
+import axios from 'axios'
 import MyCards from './myCards'
 import Community from './community'
 import { connect } from 'react-redux';
-import {win, bet} from './Redux/Actions';
+import { setStreet, win, bet, check, oppBet, makeMyTurn, lose, makeOppTurn } from './Redux/Actions';
 const Hand = require('pokersolver').Hand;
 
 
 
 const SetUp = props => {
-  console.log(props)
+  const checks = []
   const [opponent, setOpponent] = useState('')
   const [friend, setFriend] = useState(false)
   const [myHand, setMyHand] = useState([])
@@ -23,14 +24,14 @@ const SetUp = props => {
   const [opponentHand, setOpponentHand] = useState([])
   const [myHandValue, setMyHandValue] = useState("")
   const [oppHandValue, setOppHandValue] = useState("")
-  const [stack, setStack] = useState(1000)
-  const mine = []
-  const opponents = []
+  const [checked, setChecked] = useState(false)
+  let mine = []
+  let opponents = []
   const [winner, setWinner] = useState('')
   const [winningHand, setWinningHand] = useState('')
-  const [pot, setPot] = useState(20)
-  
+
   let table = localStorage.getItem('pokerRoom')
+  let player = localStorage.getItem('pokerPosition')
 
   let socket;
   const ENDPOINT = 'http://localhost:8080/';
@@ -76,7 +77,6 @@ const SetUp = props => {
   })
 
   socket.on('registered', (res) => {
-    console.log(res)
     localStorage.setItem('pokerID', res.id)
     localStorage.setItem('pokerPosition', res.player)
     localStorage.setItem('pokerRoom', res.room)
@@ -90,25 +90,21 @@ const SetUp = props => {
 
   function deal() {
     socket.emit('deal', { "name": localStorage.getItem('pokerRoom') }, (res) => {
-      console.log(res)
+
     })
   }
 
   socket.on('ready', () => {
-    console.log('ready')
+    if (player == 1) { props.makeMyTurn() }
     setReady(true)
     deal()
   })
 
   socket.on('bet', res => {
-    console.log('bet', res)
     if (res.player != localStorage.getItem('pokerPosition')) {
       setCallSize(res.ammount)
+      props.oppBet(res.ammount)
     }
-  })
-
-  socket.on('call', res => {
-    console.log(res)
   })
 
   function Bet(ammount) {
@@ -117,34 +113,37 @@ const SetUp = props => {
     setBetSize(0)
   }
 
-  function Check() {
-    socket.emit('check', table)
-  }
-
   function Fold() {
-    socket.emit('fold', table)
+    socket.emit('fold', table, player)
   }
 
   function Call() {
-    setChips(chips - callSize)
-    socket.emit('call', callSize)
+    checks.push(player)
+    console.log(checks)
+    props.bet(callSize)
+    socket.emit('call', table, player, callSize)
     if (community.length == 0) {
       socket.emit('flop', table)
+      props.setStreet('flop')
     }
     if (community.length + turn.length == 3) {
       socket.emit('turn', table)
+      props.setStreet('turn')
     }
     if (community.length + turn.length + river.length == 4) {
       console.log('river')
       socket.emit('river', table)
+      props.setStreet('river')
     }
     if (community.length + river.length + turn.length == 5) {
       Judge()
       socket.emit('shuffle', table)
+      props.setStreet('post')
     }
   }
 
-  function Judge(){
+
+  function Judge() {
     mine.push(myHand[0], myHand[1], community[0].card, community[1].card, community[2].card, turn[0], river[0])
     opponents.push(opponentHand[0], opponentHand[1], community[0].card, community[1].card, community[2].card, turn[0], river[0])
     console.log(mine)
@@ -157,78 +156,153 @@ const SetUp = props => {
     //console.log(Hand.winners([myHandValue, oppHandValue]));
   }
 
-  function evaluate(){
+  function evaluate() {
     setWinningHand(Hand.winners([myHandValue, oppHandValue]));
   }
 
   socket.on('flop', res => {
-    console.log(res)
+    console.log('flop', res)
     setCommunity(res)
+    setChecked(false)
   })
 
   socket.on('turn', res => {
     console.log(res[0].card)
     setTurn([res[0].card])
+    setChecked(false)
   })
 
   socket.on('river', res => {
     setRiver([res[0].card])
+    setChecked(false)
   })
 
   socket.on('check', res => {
-    console.log(res)
+    setChecked(true)
+    if (res == player) {
+      props.makeOppTurn()
+    }
+    else {
+      props.makeMyTurn()
+    }
   })
-
   socket.on('fold', res => {
-    console.log(res)
   })
 
-  const add = () =>{
-    props.win(pot)
+  const add = () => {
+    props.win(props.pot)
   }
 
-  socket.on('winner', res =>{ 
-  
+  socket.on('winner', res => {
+
     const position = localStorage.getItem('pokerPosition')
-    if(res == position){
+    if (res == position) {
       console.log('i win')
       add()
+      setTimeout(function () {
+        setCommunity([])
+        setRiver([])
+        setTurn([])
+        mine = []
+        setMyHand([])
+        setOpponentHand([])
+        setBetSize(0)
+        opponents = []
+        deal()
+      }, 3000);
+    }
+    else {
+      props.lose()
+      setTimeout(function () {
+        setCommunity([])
+        setRiver([])
+        setTurn([])
+        mine = []
+        setMyHand([])
+        setOpponentHand([])
+        setBetSize(0)
+        opponents = []
+        deal()
+      }, 3000);
     }
   })
 
+  socket.on('called', res => {
+    console.log(res)
+    if (res.player == player) {
+      console.log('wtf')
+    }
+    if (res.player != player) {
+      props.oppBet(parseInt(res.size))
+    }
+  })
+
+
+  function Check() {
+    socket.emit('check', table, player)
+    //setChecked(true)
+    console.log(checked)
+    if (checked) {
+      if (community.length == 0) {
+        socket.emit('flop', table)
+        props.setStreet('flop')
+        setChecked(false)
+      }
+      if (community.length + turn.length == 3) {
+        socket.emit('turn', table)
+        props.setStreet('turn')
+        setChecked(false)
+      }
+      if (community.length + turn.length + river.length == 4) {
+        console.log('river')
+        socket.emit('river', table)
+        props.setStreet('river')
+        setChecked(false)
+      }
+      if (community.length + river.length + turn.length == 5) {
+        Judge()
+        socket.emit('shuffle', table)
+        props.setStreet('post')
+        setChecked(false)
+      }
+
+    }
+    // props.check(player)
+    // console.log(props.checkers)
+  }
 
 
   useEffect(() => {
     console.log(myHandValue)
-    if(myHandValue){
-    evaluate()
+    if (myHandValue) {
+      evaluate()
     }
   }, [myHandValue])
 
+
   useEffect(() => {
     const position = localStorage.getItem('pokerPosition')
-    if(winningHand){
-    console.log(myHandValue.cardPool)
-    console.log(winningHand[0].cardPool)
-    if(myHandValue.cardPool == winningHand[0].cardPool){
-      console.log("I WIN!!!")
-      socket.emit('winner', {table, winner: position})
-    }
-    if(myHandValue.cardPool !== winningHand[0].cardPool){
-      console.log("I LOST!?!?")
-      if (position == 1){
-      socket.emit('winner', {table, winner: 2 })
+    if (winningHand) {
+      console.log(myHandValue.cardPool)
+      console.log(winningHand[0].cardPool)
+      if (myHandValue.cardPool == winningHand[0].cardPool) {
+        console.log("I WIN!!!")
+        socket.emit('winner', { table, winner: position })
       }
-      else{
-        socket.emit('winner', {table, winner: 1 })
+      if (myHandValue.cardPool !== winningHand[0].cardPool) {
+        console.log("I LOST!?!?")
+        if (position == 1) {
+          socket.emit('winner', { table, winner: 2 })
+        }
+        else {
+          socket.emit('winner', { table, winner: 1 })
+        }
       }
-    }
     }
   }, [winningHand])
 
   return (
     <>
-
       {ready ? null : <div>
         {friend ? <button onClick={() => { Play(opponent) }} > Confirm</button> : <button onClick={() => setFriend(true)} > PLAY A FRIEND!</button>}
         {friend ? <><label>Opponent: </label>  <input value={opponent} onChange={handleOpponent} /> </> : null}
@@ -236,37 +310,56 @@ const SetUp = props => {
         <button onClick={() => { Play("") }} >Play Random Opponent</button>
         <button onClick={() => { deal() }}>DEALLLL!!!!!!!!</button>
       </div>}
-      {/* {ready ?  */}
-      <>
-        <h1> Community Cards: </h1>
-        <Community card={community} turn={turn} river={river} />
-        <h1> MY HAND:</h1>
-        <MyCards cards={myHand} />
-        <h1>MY CHIPS: {chips}</h1>
-        <input type="number" step="5" min="0" max={chips} value={betSize} onChange={handleBet} />
-        <button onClick={() => { Bet(betSize) }}>bet!!!!!!!!</button>
-        {callSize > 0 ? <button onClick={() => { Call() }}>Call {callSize}</button> : <button onClick={() => { Check() }}>Check</button>}
-        <button onClick={() => { Fold() }}>Fold</button>
-        {callSize > 0 ? <button onClick={() => { Fold() }}>Fold</button> : null}
-      </>
-      : null }
-      <button onClick={() => {add(pot)}}>add</button>
+      {ready ?
+        <>
+          <h1> Community Cards: </h1>
+          <Community card={community} turn={turn} river={river} />
+          <h1> MY HAND:</h1>
+          <MyCards cards={myHand} />
+          <h1>MY CHIPS: {props.myChips}</h1>
+          {props.myTurn ?
+            <>
+              <input type="number" step="5" min="0" max={chips} value={betSize} onChange={handleBet} />
+              <button onClick={() => { Bet(betSize) }}>bet!!!!!!!!</button>
+              {/* {callSize > 0 ? <button onClick={() => { Call() }}>Call {callSize}</button> : <button onClick={() => { Call() }}>Check</button>} */}
+              <button onClick={() => { Call() }}>Call {callSize}</button>
+              {callSize > 0 ? null : <button onClick={() => { Check() }}>Check</button>}
+              <button onClick={() => { Fold() }}>Fold</button>
+              {callSize > 0 ? <button onClick={() => { Fold() }}>Fold</button> : null}
+            </>
+            : null}
+          <h1>Opponent Chips: {props.oppChips}</h1>
+          <h1>Pot: {props.pot}</h1>
+        </>
+        : null}
+      {/* <h1>My turn? {props.myTurn ? "yes" : "no"}</h1> */}
     </>
   )
 }
 
 function mapStateToProps(state) {
   return {
-      myChips: state.myChips
+    myChips: state.myChips,
+    myTurn: state.myTurn,
+    oppChips: state.oppChips,
+    pot: state.pot,
+    checked: state.checked,
+    street: state.street
   }
 }
 
 const mapDispatchToProps = {
-    win,
-    bet
+  win,
+  bet,
+  check,
+  oppBet,
+  makeMyTurn,
+  lose,
+  makeOppTurn,
+  setStreet,
 }
 
 export default connect(
-mapStateToProps,
-mapDispatchToProps,)
-(SetUp);
+  mapStateToProps,
+  mapDispatchToProps)
+  (SetUp);
