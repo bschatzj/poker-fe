@@ -54,6 +54,7 @@ code {
   background-color: black;
   height: 25%;
   width: 100%;
+  display: flex;
 }
 
 .middleText{
@@ -275,4 +276,56 @@ input[type=range]:focus::-ms-fill-lower {
 }
 input[type=range]:focus::-ms-fill-upper {
   background: #ac51b5;
+}
+
+.pot{
+  position: absolute;
+  width: 10%;
+  top: 18%;
+  z-index: 1;
+  left: 45%;
+  text-align: center;
+  background-color: white;
+}
+
+.opp{
+  color: whitesmoke;
+  display: flex;
+  align-items: center;
+  border-right: 1px solid whitesmoke;
+  padding: 3%;
+  width: 20%;
+}
+
+.feed{
+  color: whitesmoke;
+  width: 40%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.waiting{
+  color: whitesmoke;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40%;
+  border-right: 1px solid whitesmoke;
+}
+
+.oppCardContain{
+  position: absolute;
+  top: 35%;
+  right: 2%;
+  display: flex;
+}
+
+.cardBack{
+  width: 150px;
+  height: 200px;
+  border: 2px solid black;
+  background-image: url('https://i.pinimg.com/originals/83/fc/f9/83fcf94ca67d33d6d15278d81ab3e8c7.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
 }

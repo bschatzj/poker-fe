@@ -17,7 +17,7 @@ export default function Cards(props) {
 
     }, [])
 
-    if (cardFive != undefined) {
+    if (cardFive != undefined && cardOne !=undefined && cardFour !=undefined) {
 
         return (
             <div className='cardsContain'>
@@ -60,7 +60,7 @@ export default function Cards(props) {
             </div>
         )
     }
-    else if (cardFour != undefined) {
+    else if (cardFour != undefined && cardOne != undefined) {
         return (
             <div className='cardsContain'>
                 <div id="card" className={cardOne.card.includes("c") || cardOne.card.includes("s") ? "black" : "red"}>

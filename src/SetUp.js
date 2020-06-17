@@ -4,6 +4,7 @@ import axios from 'axios'
 import MyCards from './myCards'
 import Community from './community'
 import { connect } from 'react-redux';
+import OppHand from './OppCards'
 import './index.css'
 import { setStreet, win, bet, check, oppBet, makeMyTurn, lose, makeOppTurn } from './Redux/Actions';
 const Hand = require('pokersolver').Hand;
@@ -354,54 +355,60 @@ const SetUp = props => {
 
   return (
     <div className="play">
-      {/* {ready ? null :  */}
-      <div className="buttons">
-        {friend ? <button className="button" onClick={() => { Play(opponent) }} > Confirm</button> : <button className="button" onClick={() => setFriend(true)} > PLAY A FRIEND!</button>}
-        {friend ? <><label>Opponent: </label>  <input value={opponent} onChange={handleOpponent} /> </> : null}
+      {ready ? null :
+        <div className="buttons">
+          {friend ? <button className="button" onClick={() => { Play(opponent) }} > Confirm</button> : <button className="button" onClick={() => setFriend(true)} > PLAY A FRIEND!</button>}
+          {friend ? <><label>Opponent: </label>  <input value={opponent} onChange={handleOpponent} /> </> : null}
 
-        <button className="button" onClick={() => { Play("") }} >Play Random Opponent</button>
-        <button className="button" onClick={() => { deal() }}>DEALLLL!!!!!!!!</button>
-      </div>}
-      {/* {ready ? */}
-      <>
-        <Community cardOne={community[0]} cardTwo={community[1]} cardThree={community[2]} turn={turn[0]} river={river[0]} />
-        <MyCards cards={myHand} />
-        <h1>MY CHIPS: {props.myChips}</h1>
-        <div className='ring'>
-          <h1 className="middleText"> POKER BATTLES </h1>
-        </div>
-        {/* {props.myTurn ? */}
-        <div className="options">
-          <div className="myOptions">
-          <h1 className="myChips">MY CHIPS: {props.myChips}</h1>
-          <div className="betSizeHolder">
-            <input className="slider" type="range" step="5" min="0" max={props.myChips} value={betSize} onChange={handleBet} />
-            <input type="number" step="5" min="0" max={props.myChips} value={betSize} onChange={handleBet} />
+          <button className="button" onClick={() => { Play("") }} >Play Random Opponent</button>
+        </div>}
+
+      {ready ?
+        <>
+          <Community cardOne={community[0]} cardTwo={community[1]} cardThree={community[2]} turn={turn[0]} river={river[0]} />
+          <MyCards cards={myHand} />
+          <div className='ring'>
+            <h1 className="middleText"> POKER BATTLES </h1>
           </div>
-          <div className='buttonHolder'>
-            <button className='optionButton' onClick={() => { Bet(betSize) }}>bet!!!!!!!!</button>
-            {callSize > 0 ? <button className='optionButton' onClick={() => { Call() }}>Call {callSize}</button> : <button className='optionButton' onClick={() => { Check() }}>Check</button>}
-            {/* <button onClick={() => { Call() }}>Call {callSize}</button>
+
+          <div className="options">
+            {props.myTurn ?
+              <div className="myOptions">
+                <h1 className="myChips">MY CHIPS: {props.myChips}</h1>
+                <div className="betSizeHolder">
+                  <input className="slider" type="range" step="5" min="0" max={props.myChips} value={betSize} onChange={handleBet} />
+                  <input type="number" step="5" min="0" max={props.myChips} value={betSize} onChange={handleBet} />
+                </div>
+                <div className='buttonHolder'>
+                  <button className='optionButton' onClick={() => { Bet(betSize) }}>bet!!!!!!!!</button>
+                  {callSize > 0 ? <button className='optionButton' onClick={() => { Call() }}>Call {callSize}</button> : <button className='optionButton' onClick={() => { Check() }}>Check</button>}
+                  {/* <button onClick={() => { Call() }}>Call {callSize}</button>
               {callSize > 0 ? null : <button onClick={() => { Check() }}>Check</button>} */}
-            <button className='optionButton' onClick={() => { Fold() }}>Fold</button>
+                  <button className='optionButton' onClick={() => { Fold() }}>Fold</button>
+                </div>
+              </div>
+              : <div className="waiting">
+                <h1>Opponent's Turn...</h1>
+              </div>
+            }
+            <div className="opp" >
+              <h1>Opponent Chips: {props.oppChips}</h1>
+            </div>
+            <div className='feed'>
+              <h1>Coming Soon!</h1>
+            </div>
           </div>
-          </div>
-        </div>
-            : null}
-        <h1>Opponent Chips: {props.oppChips}</h1>
-        {showdown ? <h1>Opponent Cards: {opponentHand[0]} {opponentHand[1]}</h1> : null}
-        <h1>Pot: {props.pot}</h1>
-      </>
-        : null}
-      <button onClick={() => { Post() }}>post</button>
-      {/* <h1>My turn? {props.myTurn ? "yes" : "no"}</h1> */}
-      <div className="buttons">
-        {friend ? <button className="button" onClick={() => { Play(opponent) }} > Confirm</button> : <button className="button" onClick={() => setFriend(true)} > PLAY A FRIEND!</button>}
-        {friend ? <><label>Opponent: </label>  <input value={opponent} onChange={handleOpponent} /> </> : null}
+          {showdown ?
+            <OppHand cards={opponentHand} /> :
 
-        <button className="button" onClick={() => { Play("") }} >Play Random Opponent</button>
-        <button className="button" onClick={() => { deal() }}>DEALLLL!!!!!!!!</button>
-      </div>}
+            <div className="oppCardContain">
+              <div className="cardBack" />
+              <div className="cardBack" />
+            </div>}
+          <h1 className="pot">Pot: {props.pot}</h1>
+        </>
+        : null}
+      {/* <button onClick={() => { Post() }}>post</button> */}
     </div>
   )
 }
