@@ -9,7 +9,7 @@ const Register = props => {
         password: "",
         email: ""
     });
-    const [error, setError] = useState("")
+    const [error, setError] = useState(false)
     const [confirm, setConfirm] = useState("")
     const handleChange = e => {
         let name = e.target.name;
@@ -40,14 +40,14 @@ const Register = props => {
                 console.log(res.data);
                 props.history.push("/loading");
             })
-            .catch(err => setError(err));
+            .catch(err => setError(true));
         }
     };
 
     return (
         <div className="outerLogin">
             <h1 className="header">REGISTER</h1>
-            <h1 className="error"> {error}</h1>
+            
             <div className="loginPage">
                 <form className="form" onSubmit={register}>
                     <input
