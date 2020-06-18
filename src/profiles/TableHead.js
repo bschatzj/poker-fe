@@ -7,7 +7,11 @@ export const columns = [
     accessor: 'handID',
   },
   { Header: 'My Hand', accessor: 'myHand' },
-  { Header: 'Profit', accessor: 'profit' },
+  {
+    Header: 'Opp. Hand',
+    accessor: 'opponentHand',
+  },
+  { Header: 'Pot Size', accessor: 'profit' },
   {
     Header: 'Flop',
     accessor: 'flop',
@@ -20,5 +24,6 @@ export const columns = [
   {
     Header: 'River',
     accessor: 'river',
-  }
+  },
+  
 ]

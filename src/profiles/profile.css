@@ -1,6 +1,6 @@
 .profile{
     background-color: rgba(110, 209, 226, 0.658);
-
+    min-height: 100vh;
 }
 
 .greeting{

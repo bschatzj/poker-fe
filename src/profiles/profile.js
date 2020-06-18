@@ -13,7 +13,7 @@ export default function Profile() {
     const [displayed, setDisplayed] = useState(0)
 
     useEffect(() => {
-        axiosWithAuth().get(`./users/user/1`)
+        axiosWithAuth().get(`./users/user/${localStorage.getItem('userId')}`)
             .then(res => {
                 console.log(res)
                 setProfileInfo(res.data)
@@ -22,7 +22,7 @@ export default function Profile() {
                 console.log(err)
             })
 
-        axiosWithAuth().get(`./hands/1`)
+        axiosWithAuth().get(`./hands/${localStorage.getItem('userId')}`)
             .then(res => {
                 setHands(res.data)
             })

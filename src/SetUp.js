@@ -27,6 +27,7 @@ const SetUp = props => {
   const [myHandValue, setMyHandValue] = useState("")
   const [oppHandValue, setOppHandValue] = useState("")
   const [checked, setChecked] = useState(false)
+  const [winningDescr, setWinningDescr] = useState('')
   let mine = []
   let opponents = []
   const [showdown, setShowdown] = useState(false)
@@ -233,8 +234,9 @@ const SetUp = props => {
   }
 
   socket.on('winner', res => {
-    console.log(community)
+    console.log("winning hand", winningHand)
     setShowdown(true)
+    //setWinningDescr(`I lost against ${winningHand[0].descr}`)
     const position = localStorage.getItem('pokerPosition')
     if (res == position) {
       console.log('i win')
@@ -250,6 +252,7 @@ const SetUp = props => {
         opponents = []
         setShowdown(false)
         deal()
+        setWinningDescr('')
       }, 3000);
     }
     else {
@@ -264,6 +267,7 @@ const SetUp = props => {
         setOpponentHand([])
         setBetSize(0)
         opponents = []
+        setWinningDescr('')
         deal()
       }, 3000);
     }
@@ -335,14 +339,15 @@ const SetUp = props => {
   useEffect(() => {
     const position = localStorage.getItem('pokerPosition')
     if (winningHand) {
-      console.log(myHandValue.cardPool)
-      console.log(winningHand[0].cardPool)
+      console.log(myHandValue)
       if (myHandValue.cardPool == winningHand[0].cardPool) {
         console.log("I WIN!!!")
         socket.emit('winner', { table, winner: position })
+        setWinningDescr(`I win with ${winningHand[0].descr}`)
       }
       if (myHandValue.cardPool !== winningHand[0].cardPool) {
         console.log("I LOST!?!?")
+        setWinningDescr(`I lost against ${winningHand[0].descr}`)
         if (position == 1) {
           socket.emit('winner', { table, winner: 2 })
         }
@@ -360,7 +365,7 @@ const SetUp = props => {
           {friend ? <button className="button" onClick={() => { Play(opponent) }} > Confirm</button> : <button className="button" onClick={() => setFriend(true)} > PLAY A FRIEND!</button>}
           {friend ? <><label>Opponent: </label>  <input value={opponent} onChange={handleOpponent} /> </> : null}
 
-          <button className="button" onClick={() => { Play("") }} >Play Random Opponent</button>
+          <button className="button" onClick={() => { Play("") }} >Random Opponent</button>
         </div>}
 
       {ready ?
@@ -370,7 +375,7 @@ const SetUp = props => {
           <div className='ring'>
             <h1 className="middleText"> POKER BATTLES </h1>
           </div>
-
+          {/* <h1>{winningDescr}</h1> */}
           <div className="options">
             {props.myTurn ?
               <div className="myOptions">
@@ -380,7 +385,7 @@ const SetUp = props => {
                   <input type="number" step="5" min="0" max={props.myChips} value={betSize} onChange={handleBet} />
                 </div>
                 <div className='buttonHolder'>
-                  <button className='optionButton' onClick={() => { Bet(betSize) }}>bet!!!!!!!!</button>
+                  <button className='optionButton' onClick={() => { Bet(betSize) }}>Bet</button>
                   {callSize > 0 ? <button className='optionButton' onClick={() => { Call() }}>Call {callSize}</button> : <button className='optionButton' onClick={() => { Check() }}>Check</button>}
                   {/* <button onClick={() => { Call() }}>Call {callSize}</button>
               {callSize > 0 ? null : <button onClick={() => { Check() }}>Check</button>} */}

@@ -23,7 +23,7 @@ const Login = props => {
         localStorage.setItem("userId", res.data.id);
         localStorage.setItem("username", res.data.username)
         console.log(res.data);
-        props.history.push("/");
+        props.history.push(`/profile/${res.data.id}`);
       })
       .catch(err => console.log(err));
   };

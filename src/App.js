@@ -9,6 +9,7 @@ import Register from './register'
 import Login from './login'
 import NavBar from './Nav'
 import Profile from './profiles/profile'
+import {PrivateRoute} from './PrivateRoute'
 
 function App(props) {
   console.log(props)
@@ -16,10 +17,10 @@ function App(props) {
   <>
     <NavBar />
     <Route exact path = '/' component ={Home} />
-    <Route exact path = '/profile/:id' component={Profile} />
+    <PrivateRoute exact path = '/profile/:id' component={Profile} />
     <Route exact path = '/Register' component ={Register} />
     <Route exact path = '/Login' component ={Login} />
-    <Route exact path='/play' component={SetUp} />
+    <PrivateRoute exact path='/play' component={SetUp} />
   </>
   )
 }

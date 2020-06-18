@@ -29,8 +29,19 @@ code {
 }
 
 .button{
-  color: black;
-  background-color: blue;
+  color: whitesmoke;
+  background-color: rgb(57, 1, 80);
+  width: 40%;
+  height: 20%;
+  border: 1px solid black;
+  margin: 3%;
+  font-size: 3rem;
+}
+
+.button:hover{
+  color: blue;
+  cursor: pointer;
+  font-size: 3.5rem;
 }
 
 .ring{
